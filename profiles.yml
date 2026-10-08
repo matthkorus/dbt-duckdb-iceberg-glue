@@ -1,0 +1,15 @@
+duckdb_test:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: duckdb_test.duckdb
+      schema: "{{ env_var('GLUE_DATABASE') }}"
+      threads: 4
+      secrets:
+        # Becomes: CREATE SECRET glue_secret (TYPE s3, PROVIDER credential_chain, REGION 'us-east-1')
+        # credential_chain picks up AWS creds the same way the AWS CLI does (env vars, AWS_PROFILE, SSO, etc.)
+        - type: s3
+          name: glue_secret
+          provider: credential_chain
+          region: us-east-1

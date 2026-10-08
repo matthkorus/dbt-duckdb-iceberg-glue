@@ -1,0 +1,7 @@
+sources:
+  - name: glue
+    # database = the DuckDB attach alias of the Glue catalog (catalogs.yml `name`)
+    database: glue_catalog
+    schema: "{{ env_var('GLUE_DATABASE') }}"
+    tables:
+      - name: struct_string_test

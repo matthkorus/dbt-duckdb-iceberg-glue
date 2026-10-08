@@ -1,0 +1,8 @@
+dbt_packages/
+dbt_internal_packages/
+logs/
+target/
+.env
+.user.yml
+*.duckdb
+*.duckdb.wal

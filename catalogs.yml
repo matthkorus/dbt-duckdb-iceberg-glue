@@ -1,0 +1,17 @@
+catalogs:
+  - name: glue_catalog
+    type: iceberg_rest
+    table_format: iceberg
+    config:
+      duckdb:
+        # Glue's Iceberg REST endpoint. (endpoint_type: GLUE is in the docs but not accepted by dbt 2.0.6.)
+        endpoint: "https://glue.us-east-1.amazonaws.com/iceberg"
+        authorization_type: SIGV4
+        # For Glue, the warehouse is your 12-digit AWS account ID (the Glue catalog ID)
+        warehouse: "{{ env_var('GLUE_ACCOUNT_ID') }}"
+        # Must match a secret `name` in profiles.yml. SigV4 uses an S3-type secret.
+        secret: glue_secret
+        # Glue rejects staged CREATE TABLE ("Stage create is not supported")
+        stage_create_tables: false
+        # Required: without this, inserts are silently not committed to Glue
+        disable_multi_table_commit: true
