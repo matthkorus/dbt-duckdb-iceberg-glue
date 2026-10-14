@@ -5,3 +5,5 @@ sources:
     schema: "{{ env_var('GLUE_DATABASE') }}"
     tables:
       - name: struct_string_test
+      # Loaded by the Etleap pipeline from CloudTrail logs in S3
+      - name: cloudtrail_raw

@@ -12,12 +12,17 @@ clean-targets:
 models:
   duckdb_test:
     # Read by macros/duckdb__create_table_as.sql: Glue needs an explicit location per Iceberg table
-    +location_root: "{{ env_var('ICEBERG_LOCATION_ROOT') }}"
+    # Etleap sets ETLEAP_ICEBERG_LOCATION_ROOT to <Iceberg connection base URL>/<target schema>.db
+    +location_root: "{{ env_var('ETLEAP_ICEBERG_LOCATION_ROOT', env_var('ICEBERG_LOCATION_ROOT', '')) }}"
     +static_analysis: strict
     # dbt creates timestamptz columns as timestamp (no zone), converting with the session time zone.
     # Pin it to UTC so values and day() partitions don't shift to the machine's local time.
     # (profiles.yml `settings:` is ignored by dbt 2.0.6, and pre-hooks run on another connection.)
     +sql_header: "set TimeZone = 'UTC';"
+    cloudtrail:
+      +catalog_name: glue_catalog
+      # dbt can't infer the column types of struct literals and JSON functions
+      +static_analysis: 'off'
 
 flags:
   use_catalogs_v2: true

@@ -1,0 +1,6 @@
+selectors:
+  - name: cloudtrail_ocsf
+    description: CloudTrail events loaded by an Etleap pipeline, mapped to OCSF
+    definition:
+      method: path
+      value: models/cloudtrail
