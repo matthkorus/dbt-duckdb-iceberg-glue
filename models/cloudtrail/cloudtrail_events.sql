@@ -2,19 +2,33 @@
 
 {#- One row per CloudTrail event. The Etleap pipeline loads each CloudTrail file as one row, with the whole
     file's JSON in `data`, because splitting the Records array into rows isn't supported in Flink pipelines.
-    Each run only reads files that earlier runs haven't loaded, identified by file_path_hash. CloudTrail never
-    rewrites a delivered file, so a file is either fully loaded or not loaded at all. -#}
+
+    Etleap gives every row a `_sequence`, a UUIDv7 taken when the row is loaded, so later loads have larger
+    values. Each run reads only rows past the largest `_sequence` already in this table. The watermark is
+    fetched first and inlined as a literal so that DuckDB can skip the Iceberg data files whose `_sequence`
+    bounds are below it, instead of reading the whole source table.
+
+    A run takes at most `max_files_per_run` files, oldest first. One CloudTrail file can hold tens of MB of
+    JSON, and unpacking a whole backlog at once runs out of memory, so a backlog is worked off over several
+    runs. -#}
+{% set watermark = none %}
+{% if execute and is_incremental() %}
+    {% set watermark = run_query('select max(source_sequence) from ' ~ this).columns[0].values()[0] %}
+{% endif %}
+
 with files as (
-    select file_path_hash, data
+    select file_path_hash, _sequence, data
     from {{ source('glue', 'cloudtrail_raw') }}
     where not coalesce(_is_delete, false)
-    {% if is_incremental() %}
-    and file_path_hash not in (select distinct source_file_hash from {{ this }})
+    {% if watermark %}
+    and _sequence > '{{ watermark }}'
     {% endif %}
+    order by _sequence
+    limit {{ var('max_files_per_run', 25) }}
 ),
 
 records as (
-    select file_path_hash, unnest(json_extract(data, '$.Records')::json[]) as r
+    select file_path_hash, _sequence, unnest(json_extract(data, '$.Records')::json[]) as r
     from files
 )
 
@@ -31,5 +45,6 @@ select
     json_extract(r, '$.requestParameters')::varchar as request_parameters,
     json_extract(r, '$.resources')::varchar as resources,
     file_path_hash as source_file_hash,
+    _sequence as source_sequence,
     '{{ invocation_id }}' as dbt_invocation_id
 from records

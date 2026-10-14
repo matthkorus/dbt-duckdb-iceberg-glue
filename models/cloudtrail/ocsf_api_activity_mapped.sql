@@ -12,7 +12,7 @@ with events as (
             when regexp_matches(event_name, '^Delete') then 4
             else 99
         end::integer as activity_id
-    from {{ ref('cloudtrail_bronze') }}
+    from {{ ref('cloudtrail_events') }}
 )
 
 select
@@ -50,5 +50,6 @@ select
         json_transform(resources, '[{"ARN": "VARCHAR", "type": "VARCHAR", "accountId": "VARCHAR"}]'),
         lambda r: {'uid': r.ARN, 'type': r.type, 'account_uid': r.accountId}
     ) as resources,
-    {'provider': 'AWS', 'region': aws_region} as cloud
+    {'provider': 'AWS', 'region': aws_region} as cloud,
+    source_sequence
 from events
