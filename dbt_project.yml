@@ -23,6 +23,7 @@ models:
       +catalog_name: glue_catalog
       # dbt can't infer the column types of struct literals and JSON functions
       +static_analysis: 'off'
+      +post-hook: "{{ log_rows_written() }}"
 
 flags:
   use_catalogs_v2: true
