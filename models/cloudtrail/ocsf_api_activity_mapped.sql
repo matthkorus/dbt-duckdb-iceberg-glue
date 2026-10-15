@@ -12,7 +12,7 @@ with events as (
             when regexp_matches(event_name, '^Delete') then 4
             else 99
         end::integer as activity_id
-    from {{ ref('cloudtrail_events') }}
+    from {{ ref('cloudtrail_events_v2') }}
 )
 
 select

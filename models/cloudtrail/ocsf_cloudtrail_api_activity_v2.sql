@@ -6,7 +6,7 @@
     CloudTrail delivers some events more than once, sometimes in different files, so events are deduplicated
     within the run and against events already loaded. That check only reads loaded events from the earliest
     event time in the new rows onward, so it is limited to the recent day(time) partitions. -#}
-{% set events = ref('cloudtrail_events') %}
+{% set events = ref('cloudtrail_events_v2') %}
 {% set watermark = none %}
 {% set earliest_new_time = none %}
 {% if execute and is_incremental() %}

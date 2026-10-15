@@ -7,3 +7,9 @@ sources:
       - name: struct_string_test
       # Loaded by the Etleap pipeline from CloudTrail logs in S3
       - name: cloudtrail_raw
+  - name: etleap_cloudtrail
+    database: glue_catalog
+    # The Glue database of the Etleap pipeline that loads one row per CloudTrail event
+    schema: "{{ env_var('CLOUDTRAIL_EVENTS_DATABASE', 'mk_demo') }}"
+    tables:
+      - name: cloudtrail_events_raw
