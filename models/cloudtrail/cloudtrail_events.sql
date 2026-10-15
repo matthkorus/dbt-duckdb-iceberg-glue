@@ -24,7 +24,7 @@ with files as (
     and _sequence > '{{ watermark }}'
     {% endif %}
     order by _sequence
-    limit {{ var('max_files_per_run', 25) }}
+    limit {{ var('max_files_per_run', 10) }}
 ),
 
 records as (
