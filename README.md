@@ -6,13 +6,6 @@ Getting this working needed several settings and one workaround macro that aren'
 
 Tested with dbt 2.0.4, 2.0.6 and 2.0.8 (macOS).
 
-## Setup
-
-1. **dbt v2:** `brew install dbt` (or `dbt system update`). `dbt --version` should print `dbt 2.x`. The DuckDB adapter is built in, with no `pip install`.
-2. **Config:** copy `.env.example` to `.env` and fill in your Glue account ID, S3 location root and Glue database. dbt loads `.env` automatically. The Glue database must already exist.
-3. **AWS credentials:** anything the AWS SDK credential chain understands works: env vars, `AWS_PROFILE`, SSO, or an ECS credential server. With aws-vault, use `aws-vault exec --ecs-server <profile>` so credentials refresh instead of expiring after an hour.
-4. **Run:** `dbt build`
-
 ## What's needed for Glue (and why)
 
 | Where | Setting | Why |
